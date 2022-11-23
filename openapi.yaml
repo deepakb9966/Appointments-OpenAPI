@@ -1,0 +1,223 @@
+openapi: 3.0.0
+info:
+  title: Appointments OpenAPI
+  description: Appointments Service
+  version: 0.0.1
+servers:
+  - url: http://localhost:8082/
+    description: Local Dev Server
+paths:
+  /Appointments/getAll:
+    get:
+      tags:
+        - Appointments
+      parameters:
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/directionParam"
+        - $ref: "#/components/parameters/sortByFieldParam"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentPagedResultDto"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ResourceNotFoundError"
+  /Appointments/get:
+    get:
+      tags:
+        - Appointments
+      parameters:
+        - $ref: "#/components/parameters/idParam"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentDto"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ResourceNotFoundError"
+        "422":
+          $ref: "#/components/responses/UnAcceptableInputs"
+  /Appointments/create:
+    post:
+      tags:
+        - Appointments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentDto"
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentDto"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ResourceNotFoundError"
+        "422":
+          $ref: "#/components/responses/UnAcceptableInputs"
+  /Appointments/update:
+    put:
+      tags:
+        - Appointments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentDto"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentDto"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ResourceNotFoundError"
+        "422":
+          $ref: "#/components/responses/UnAcceptableInputs"
+  /Appointments/delete:
+    delete:
+      tags:
+        - Appointments
+      parameters:
+        - $ref: "#/components/parameters/idParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ResourceNotFoundError"
+        "422":
+          $ref: "#/components/responses/UnAcceptableInputs"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    idParam:
+      name: id
+      in: query
+      required: true
+      schema:
+        type: string
+    limitParam:
+      name: Limit
+      in: query
+      schema:
+        type: integer
+        nullable: true
+    directionParam:
+      name: Direction
+      in: query
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: asc
+    sortByFieldParam:
+      name: SortByField
+      in: query
+      schema:
+        type: string
+        nullable: true
+  responses:
+    Success:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageDto"
+    ResourceNotFoundError:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageDto"
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageDto"
+    UnAcceptableInputs:
+      description: Invalid Inputs
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageDto"
+  schemas:
+    MessageDto:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    AppointmentPagedResultDto:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AppointmentDto"
+    AppointmentDto:
+      type: object
+      properties:
+        appointmentType:
+          type: integer
+        id:
+          type: string
+        appointmentStatus:
+          type: string
+        appointmentDate:
+          type: string
+          format: DateTime
+        slotTime:
+          type: string
+        createdAt:
+          type: string
+          format: Timestamp
+        doctorId:
+          type: string
+        symptoms:
+          type: string
+        slotId:
+          type: string
+        patientId:
+          type: string
+        doctorName:
+          type: string
+        doctorImage:
+          type: string
+      required:
+        - appointmentType
+        - id
+        - appointmentStatus
+        - appointmentDate
+        - slotTime
+        - createdAt
+        - doctorId
+        - symptoms
+        - slotId
+        - patientId
+        - doctorName
+        - doctorImage
