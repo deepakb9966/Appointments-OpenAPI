@@ -12,6 +12,7 @@ paths:
       tags:
         - Appointments
       parameters:
+        - $ref: "#/components/parameters/patientIdParam"
         - $ref: "#/components/parameters/limitParam"
         - $ref: "#/components/parameters/directionParam"
         - $ref: "#/components/parameters/sortByFieldParam"
@@ -94,6 +95,7 @@ paths:
       tags:
         - Appointments
       parameters:
+        - $ref: "#/components/parameters/patientIdParam"
         - $ref: "#/components/parameters/idParam"
       responses:
         "200":
@@ -110,6 +112,12 @@ components:
       type: http
       scheme: bearer
   parameters:
+    patientIdParam:
+      name: patientId
+      in: query
+      required: true
+      schema:
+        type: string
     idParam:
       name: id
       in: query
@@ -187,7 +195,7 @@ components:
         id:
           type: string
         appointmentStatus:
-          type: string
+          type: boolean
         appointmentDate:
           type: string
           format: DateTime
@@ -210,14 +218,10 @@ components:
           type: string
       required:
         - appointmentType
-        - id
         - appointmentStatus
         - appointmentDate
         - slotTime
-        - createdAt
         - doctorId
         - symptoms
         - slotId
         - patientId
-        - doctorName
-        - doctorImage
