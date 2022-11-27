@@ -151,7 +151,15 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/MessageDto"
+            type: object
+            properties:
+              patientId:
+                type: string
+              slotId:
+                type: string
+              message:
+                type: string
+           
     ResourceNotFoundError:
       description: The specified resource was not found
       content:

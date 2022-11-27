@@ -25,11 +25,11 @@ export class appointmentsService {
 		sortByField: string | null | undefined
 	): Promise<t.GetAppointmentsGetAllResponse> {
 		try {
-			const appointmentsQuerySnap = await db.collectionGroup(`Appointments`).where("patientId","==",patientId).get();
+			const appointmentsQuerySnap = await db.collectionGroup(`Appointments`).where("patientId", "==", patientId).get();
 			const appointments: Api.AppointmentDto[] = appointmentsQuerySnap.docs
-				.map((doc: { data: () => any ; }) => doc.data())
+				.map((doc: { data: () => any; }) => doc.data())
 				.map((json: any) => v.modelApiAppointmentDtoFromJson("appointments", json));
-			console.log("appointments",appointments)
+			console.log("appointments", appointments)
 			return {
 				status: 200,
 				body: {
@@ -41,14 +41,14 @@ export class appointmentsService {
 			console.error(error);
 			return {
 				status: 404,
-				body: {message:`something went wrong`}
+				body: { message: `something went wrong` }
 			}
 		}
 	}
 
 	async get(id: string): Promise<t.GetAppointmentsGetResponse> {
 		try {
-			const appointmentsDocSnap = (await db.collectionGroup(`Appointments`).where("slotId","==",id).get()).docs[0];
+			const appointmentsDocSnap = (await db.collectionGroup(`Appointments`).where("slotId", "==", id).get()).docs[0];
 			if (!appointmentsDocSnap.exists) {
 				throw new Error("no-appointment-found");
 			}
@@ -70,7 +70,7 @@ export class appointmentsService {
 			}
 			return {
 				status: 404,
-				body: {message:`something went wrong`}
+				body: { message: `something went wrong` }
 			}
 		}
 	}
@@ -84,19 +84,19 @@ export class appointmentsService {
 			if (!request.patientId) {
 				throw new Error("no-Id-found");
 			}
-			if (await this._checkslotExists(request.appointmentDate,request.slotTime)){
+			if (await this._checkslotExists(request.appointmentDate, request.slotTime)) {
 				throw new Error("slot-already-bokked");
 
 			}
 			const appointmentRef = db.collection(`${this.collectionName}/${request.patientId}/Appointments`).doc();
-			request.slotId=appointmentRef.id
+			request.slotId = appointmentRef.id
 			const appointRequest = v.modelApiAppointmentDtoFromJson("appointments", request);
 			try {
 				const patient = await this._checkUserExists(request.patientId);
 				await appointmentRef.set({
-						...appointRequest,
-						appointmentStatus: true,
-						createdAt: new Date().toISOString(),
+					...appointRequest,
+					appointmentStatus: true,
+					createdAt: new Date().toISOString(),
 				});
 				return {
 					status: 201,
@@ -138,7 +138,7 @@ export class appointmentsService {
 			}
 			return {
 				status: 404,
-				body: {message:`something went wrong`}
+				body: { message: `something went wrong` }
 			}
 		}
 	}
@@ -156,11 +156,11 @@ export class appointmentsService {
 			if (!request.slotId) {
 				throw new Error("no-slotId-found");
 			}
-			if (await this._checkslotExists(request.appointmentDate,request.slotTime)){
+			if (await this._checkslotExists(request.appointmentDate, request.slotTime)) {
 				throw new Error("slot-already-bokked");
 
 			}
-			 
+
 			const appointmentRequest = JSON.parse(JSON.stringify(request))
 			const appointmentRef = db.collection(`${this.collectionName}/${request.patientId}/Appointments`).doc(request.slotId);
 			await appointmentRef.update({
@@ -206,14 +206,14 @@ export class appointmentsService {
 				body: {
 					message: "no slotId found with given info",
 				},
-			};		
+			};
 		}
 	}
 
-	async delete(patientId:string, slotId: string): Promise<t.DeleteAppointmentsDeleteResponse> {
+	async delete(patientId: string, slotId: string): Promise<t.DeleteAppointmentsDeleteResponse> {
 		try {
 			await this._checkUserExists(slotId);
-			const appointmentRef = (await db.collectionGroup(`Appointments`).where("slotId","==",slotId).where("patientId","==",patientId).get()).docs[0].ref
+			const appointmentRef = (await db.collectionGroup(`Appointments`).where("slotId", "==", slotId).where("patientId", "==", patientId).get()).docs[0].ref
 			await appointmentRef.update({
 				appointmentStatus: false,
 				updatedAt: new Date().toISOString(),
@@ -223,48 +223,52 @@ export class appointmentsService {
 				body: {
 					...appointmentRef,
 					message: "appointment deleted successfully",
+					patientId: patientId,
+					slotId: slotId,
+
+
 				},
 			};
 		} catch (error: any) {
 			console.error(error?.response?.status);
-				return {
-					status: 404,
-					body: {
-						
-						message: "appointment already deleted or no appointment found",
-					},
-				};
+			return {
+				status: 404,
+				body: {
+
+					message: "appointment already deleted or no appointment found",
+				},
+			};
 		}
 	}
 
 	private async _checkUserExists(patientId: string) {
 		const response = await db.collection("PATIENTS").doc(patientId).get();
-		console.log("PATIENTS",response)
+		console.log("PATIENTS", response)
 		if (!response) {
 			throw new Error("no-patient-found");
 		}
 		return response.data();
 	}
-	private async _checkslotExists(appointmentDate: string,slotTime:string) {
-		try{
-			const appD = (await db.collectionGroup(`Appointments`).where("appointmentDate","==",appointmentDate).get())
-			const slTime = (await db.collectionGroup(`Appointments`).where("slotTime","==",slotTime).get()).docs[0].ref
-			console.log("appD:",appD)
-			console.log("slTime:",slTime)
+	private async _checkslotExists(appointmentDate: string, slotTime: string) {
+		try {
+			const appD = (await db.collectionGroup(`Appointments`).where("appointmentDate", "==", appointmentDate).get())
+			const slTime = (await db.collectionGroup(`Appointments`).where("slotTime", "==", slotTime).get()).docs[0].ref
+			console.log("appD:", appD)
+			console.log("slTime:", slTime)
 			// db.collection("PATIENTS").get().then((querySnapshot) => {
-    		// querySnapshot.forEach((doc) => {
-            // console.log(`${doc.id} => ${doc.data()}`);});
-		    // });
-			if (appD && slTime){
+			// querySnapshot.forEach((doc) => {
+			// console.log(`${doc.id} => ${doc.data()}`);});
+			// });
+			if (appD && slTime) {
 				return 1
 			}
-			
+
 		}
-		catch{
+		catch {
 
 			return 0
 
 		}
-		
+
 	}
 }
