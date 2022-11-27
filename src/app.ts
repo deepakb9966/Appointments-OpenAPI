@@ -1,7 +1,7 @@
 import { Server as HttpServer } from "http";
 import { Server, ServerOptions } from "socket.io";
 import { ClientEvents, ServerEvents } from "./events";
-import todoHandlers from "./handlers/todo";
+import todoHandlers from "./handlers/appointments.ts";
 import { ServiceImplementation } from "./impl";
 
 export function createApplication(
